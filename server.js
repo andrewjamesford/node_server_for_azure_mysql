@@ -51,7 +51,8 @@ app.get("/oceania", (req, res) => {
       console.error("Error fetching Oceania countries:", err);
       return res.status(500).send("Internal Server Error");
     }
-  );
+    res.json(results);
+  });
 });
 
 //Show the information about a specific country by it's name
