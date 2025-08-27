@@ -6,12 +6,12 @@ const cors = require("cors");
 
 const app = express();
 
-//create a connection to the database using connection pools- this keeps the connection open and allows people to queue
+// Create a connection pool to the database
 const pool = mysql.createPool({
-  host: process.env.MYSQL_HOST, //localhost
-  user: process.env.MYSQL_USER, //root user in mysql
-  password: process.env.MYSQL_PASSWORD, //password for root user in mysql
-  database: process.env.MYSQL_DATABASE, //name of the database you want to query
+  host: process.env.MYSQL_HOST,
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE,
   port: 3306,
   ssl: { ca: fs.readFileSync("./DigiCertGlobalRootCA.crt.pem") },
   waitForConnections: true, //if want to allow people to queue for connection spots
@@ -23,23 +23,33 @@ const pool = mysql.createPool({
 app.use(cors({ origin: process.env.CLIENT_HOST }));
 
 //========== ENDPOINTS ============//
-//Root endpoint: return all countries
+
+// Root endpoint: returns all countries
 app.get("/", (req, res) => {
-  console.log("/ endpoint was hit 🎯");
-  pool.query("SELECT * FROM country", (err, result) => {
-    if (err) return console.log(err);
-    res.send(result);
+  console.log("GET / endpoint was hit 🎯");
+  pool.query("SELECT * FROM country", (err, results) => {
+    if (err) {
+      console.error("Error fetching countries:", err);
+      return res.status(500).send("Internal Server Error");
+    }
+    res.json(results);
   });
 });
 
 //get a list of countries that belong in Oceania
 app.get("/oceania", (req, res) => {
-  console.log("/oceania endpoint was hit 🎯");
-  pool.query(
-    'SELECT name, LifeExpectancy FROM country WHERE Continent = "Oceania" order by LifeExpectancy DESC LIMIT 10;',
-    (err, result) => {
-      if (err) return console.log(err);
-      res.send(result);
+  console.log("GET /oceania endpoint was hit 🎯");
+  const query = `
+    SELECT Name, LifeExpectancy 
+    FROM country 
+    WHERE Continent = 'Oceania' 
+    ORDER BY LifeExpectancy DESC 
+    LIMIT 10;
+  `;
+  pool.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching Oceania countries:", err);
+      return res.status(500).send("Internal Server Error");
     }
   );
 });
@@ -78,14 +88,12 @@ app.get("/population/:continent", (req, res) => {
 const PORT = process.env.PORT;
 console.log(PORT);
 
-app
-  .listen(PORT, () => {
-    console.log(`Server is live at http://localhost:${PORT}`);
-  })
-  .on("error", (error) => {
-    if (error.code === "EADDRINUSE") {
-      console.log("Port is already in use");
-    } else {
-      console.log("Server Error", error);
-    }
-  });
+app.listen(PORT, () => {
+  console.log(`Server is live at http://localhost:${PORT}`);
+}).on("error", (error) => {
+  if (error.code === "EADDRINUSE") {
+    console.error("Port is already in use");
+  } else {
+    console.error("Server Error:", error);
+  }
+});
