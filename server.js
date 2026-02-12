@@ -13,7 +13,7 @@ const pool = mysql.createPool({
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DATABASE,
   port: 3306,
-  ssl: { ca: fs.readFileSync("./DigiCertGlobalRootCA.crt.pem") },
+  ssl: { ca: fs.readFileSync("./DigiCertGlobalRootG2.crt.pem") },
   waitForConnections: true, //if want to allow people to queue for connection spots
   connectionLimit: 10, // number of available connection spots
   queueLimit: 0, //how many people can queue for a connection spot- if 0 as many people as needed can queue
