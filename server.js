@@ -15,7 +15,7 @@ const pool = mysql.createPool({
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DATABASE,
   port: process.env.MYSQL_PORT || 3306,
-  ssl: { ca: fs.readFileSync("./DigiCertGlobalRootCA.crt.pem") },
+  ssl: { ca: fs.readFileSync("./DigiCertGlobalRootG2.crt.pem") },
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
